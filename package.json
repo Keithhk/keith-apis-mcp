@@ -1,0 +1,23 @@
+{
+  "name": "keith-apis-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for five small APIs: web page to Markdown and link previews, Open Graph images, job posting parsing, resume parsing and job matching, and Elo / Glicko-2 / OpenSkill ratings.",
+  "type": "module",
+  "bin": { "keith-apis-mcp": "dist/index.js" },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test \"test/**/*.test.mjs\""
+  },
+  "keywords": ["mcp", "model-context-protocol", "markdown", "web-scraping", "rag", "og-image", "job-parser", "resume-parser", "elo", "glicko-2", "openskill"],
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "5.9.3"
+  }
+}
