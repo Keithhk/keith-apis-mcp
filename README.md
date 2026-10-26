@@ -53,6 +53,13 @@ Requires Node.js 18 or newer.
 - "Score my resume at ~/cv.pdf against this job description and list the skills I'm missing."
 - "Here are our league results; rank the players with Glicko-2 and predict next week's final."
 
+## Free tools
+
+Try two of the APIs in a browser, with no key:
+
+- [URL to Markdown converter](https://web-page-api.fly.dev/url-to-markdown): what `fetch_url_as_markdown` returns for a page.
+- [Elo rating calculator](https://ranking-api.fly.dev/elo-calculator): win probability and new ratings for one game, the 1v1 case of `rate_matches`.
+
 ## Privacy
 
 The server runs on your machine and sends each request only to the API it uses, through RapidAPI. The APIs are stateless: inputs, including resumes, are processed and returned, never stored or logged.
