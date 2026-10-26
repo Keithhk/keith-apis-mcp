@@ -2,16 +2,42 @@
   "name": "keith-apis-mcp",
   "version": "0.1.0",
   "description": "MCP server for five small APIs: web page to Markdown and link previews, Open Graph images, job posting parsing, resume parsing and job matching, and Elo / Glicko-2 / OpenSkill ratings.",
+  "mcpName": "io.github.keithhk/keith-apis-mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Keithhk/keith-apis-mcp.git"
+  },
+  "homepage": "https://github.com/Keithhk/keith-apis-mcp#readme",
+  "bugs": "https://github.com/Keithhk/keith-apis-mcp/issues",
   "type": "module",
-  "bin": { "keith-apis-mcp": "dist/index.js" },
-  "files": ["dist", "README.md"],
+  "bin": {
+    "keith-apis-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "npm run build && node --test \"test/**/*.test.mjs\""
   },
-  "keywords": ["mcp", "model-context-protocol", "markdown", "web-scraping", "rag", "og-image", "job-parser", "resume-parser", "elo", "glicko-2", "openskill"],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "markdown",
+    "web-scraping",
+    "rag",
+    "og-image",
+    "job-parser",
+    "resume-parser",
+    "elo",
+    "glicko-2",
+    "openskill"
+  ],
   "license": "MIT",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.1",
     "zod": "4.6.5"
