@@ -1,0 +1,31 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Keithhk/keith-apis-mcp",
+  "description": "Web page to Markdown, link previews, OG images, job and resume parsing, Elo/Glicko-2 ratings",
+  "repository": {
+    "url": "https://github.com/Keithhk/keith-apis-mcp",
+    "source": "github"
+  },
+  "version": "0.1.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "keith-apis-mcp",
+      "version": "0.1.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "RAPIDAPI_KEY",
+          "description": "Your RapidAPI key; subscribe (free plans available) to the APIs you want to use",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ],
+  "title": "Keith APIs: web to Markdown, OG images, job & resume parsing, ratings",
+  "websiteUrl": "https://github.com/Keithhk/keith-apis-mcp#readme"
+}

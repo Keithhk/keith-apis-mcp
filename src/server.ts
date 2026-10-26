@@ -10,7 +10,7 @@ import { basename, extname } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
-const VERSION = "0.1.0";
+const VERSION = "0.1.1";
 
 const APIS = {
   OG_IMAGE: { host: "og-image-api1.p.rapidapi.com", docs: "https://og-image-api.fly.dev/" },

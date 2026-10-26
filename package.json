@@ -1,8 +1,8 @@
 {
   "name": "keith-apis-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server for five small APIs: web page to Markdown and link previews, Open Graph images, job posting parsing, resume parsing and job matching, and Elo / Glicko-2 / OpenSkill ratings.",
-  "mcpName": "io.github.keithhk/keith-apis-mcp",
+  "mcpName": "io.github.Keithhk/keith-apis-mcp",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Keithhk/keith-apis-mcp.git"
