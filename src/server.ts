@@ -1,5 +1,5 @@
 /**
- * MCP server for five small hosted APIs, called through RapidAPI with the user's own key.
+ * MCP server for six small hosted APIs, called through RapidAPI with the user's own key.
  *
  *   RAPIDAPI_KEY        required; one key works for every API you subscribe to
  *   <API>_HOST          optional override of an API's X-RapidAPI-Host (OG_IMAGE_HOST, WEB_PAGE_HOST, ...)
@@ -10,7 +10,7 @@ import { basename, extname } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
-const VERSION = "0.1.1";
+const VERSION = "0.2.0";
 
 const APIS = {
   OG_IMAGE: { host: "og-image-api1.p.rapidapi.com", docs: "https://og-image-api.fly.dev/" },
@@ -18,6 +18,9 @@ const APIS = {
   JOB_PARSER: { host: "job-posting-parser.p.rapidapi.com", docs: "https://job-parser-api.fly.dev/" },
   RESUME_MATCH: { host: "resume-parser-job-match.p.rapidapi.com", docs: "https://resume-match-api.fly.dev/" },
   SKILL_RATING: { host: "skill-rating-api.p.rapidapi.com", docs: "https://ranking-api.fly.dev/" },
+  // PLACEHOLDER: host and docs URL follow the naming of the others; confirm both once
+  // hot-lists-api is listed on RapidAPI and deployed (users can override with HOT_LISTS_HOST).
+  HOT_LISTS: { host: "hot-lists-api.p.rapidapi.com", docs: "https://hot-lists-api.fly.dev/" },
 } as const;
 type Api = keyof typeof APIS;
 
@@ -331,6 +334,98 @@ export function createServer(): McpServer {
       annotations: PURE,
     },
     tool(() => jsonResult(call("SKILL_RATING", "/algorithms"))),
+  );
+
+  // ---- China Hot Lists API ------------------------------------------------
+  const board = z
+    .enum(["douyin", "weibo", "toutiao", "baidu", "kuaishou", "bilibili"])
+    .describe("Platform hot list: douyin, weibo, toutiao, baidu, kuaishou or bilibili (popular videos)");
+  const boards = z
+    .array(board)
+    .min(1)
+    .max(6)
+    .optional()
+    .describe("Which platforms to include (default: all)");
+  const limit = z.number().int().min(1).max(50).optional().describe("Items per board (default 50 for one board, 20 for several)");
+  const translate = z
+    .boolean()
+    .optional()
+    .describe("Add English titles (title_en) and a topic category to each item (default true)");
+  const joined = (b?: string[]) => (b?.length ? b.join(",") : undefined);
+
+  server.registerTool(
+    "china_hot_lists_boards",
+    {
+      title: "List China hot-list boards",
+      description:
+        "List the Chinese platform hot lists available (Douyin, Weibo, Toutiao, Baidu, Kuaishou, Bilibili) " +
+        "with their names, update interval and whether the last fetch worked. Use it to see which boards " +
+        "exist before calling china_hot_list or china_hot_lists_all.",
+      inputSchema: {},
+      annotations: READ_ONLY,
+    },
+    tool(() => jsonResult(call("HOT_LISTS", "/v1/boards"))),
+  );
+
+  server.registerTool(
+    "china_hot_list",
+    {
+      title: "China hot list (one platform)",
+      description:
+        "Get the real-time hot search / trending list of one Chinese platform, e.g. the Weibo hot search " +
+        "or Douyin hot list, with rank, original Chinese title, English translation, topic category, heat " +
+        "and link. Use it for \"what is trending on Weibo right now\" or \"top Douyin topics today\".",
+      inputSchema: { board, limit, translate },
+      annotations: READ_ONLY,
+    },
+    tool(({ board, ...q }) => jsonResult(call("HOT_LISTS", `/v1/boards/${encodeURIComponent(board)}`, { query: q }))),
+  );
+
+  server.registerTool(
+    "china_hot_lists_all",
+    {
+      title: "China hot lists (several platforms)",
+      description:
+        "Get the real-time hot lists of several Chinese platforms (Douyin, Weibo, Toutiao, Baidu, Kuaishou, " +
+        "Bilibili) in one call, each item with an English translation and topic category. Use it to answer " +
+        "\"what is trending in China right now\" or to brief someone on Chinese social media today.",
+      inputSchema: { boards, limit, translate },
+      annotations: READ_ONLY,
+    },
+    tool((a) => jsonResult(call("HOT_LISTS", "/v1/all", { query: { ...a, boards: joined(a.boards) } }))),
+  );
+
+  server.registerTool(
+    "china_hot_lists_search",
+    {
+      title: "Search China hot lists",
+      description:
+        "Search the current Chinese hot lists for a keyword in Chinese or English (matches the original " +
+        "title or its English translation, case-insensitive). Use it to check \"is X trending on Weibo\", " +
+        "\"is anyone in China talking about our brand / Tesla / this news\" right now.",
+      inputSchema: {
+        q: z.string().min(1).max(100).describe("Keyword, Chinese or English, e.g. 特斯拉 or Tesla"),
+        boards,
+      },
+      annotations: READ_ONLY,
+    },
+    tool((a) => jsonResult(call("HOT_LISTS", "/v1/search", { query: { ...a, boards: joined(a.boards) } }))),
+  );
+
+  server.registerTool(
+    "china_trending_across_platforms",
+    {
+      title: "Trending across Chinese platforms",
+      description:
+        "Find topics trending on several Chinese platforms at once (e.g. both Weibo and Douyin), grouped, " +
+        "with each platform's rank. Use it for \"what are the biggest stories in China right now\": a " +
+        "topic on many boards matters more than one on a single list.",
+      inputSchema: {
+        min_boards: z.number().int().min(2).max(6).optional().describe("Minimum number of platforms a topic must be on (default 2)"),
+      },
+      annotations: READ_ONLY,
+    },
+    tool((a) => jsonResult(call("HOT_LISTS", "/v1/cross", { query: a }))),
   );
 
   return server;

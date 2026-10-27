@@ -1,4 +1,4 @@
-# keith-apis-mcp: web page to Markdown, OG images, job and resume parsing, Elo ratings
+# keith-apis-mcp: web page to Markdown, OG images, job and resume parsing, Elo ratings, China hot lists
 
 **keith-apis-mcp is an MCP (Model Context Protocol) server that gives AI assistants such as Claude, Cursor and ChatGPT eleven tools from five small hosted APIs:** read any web page as clean Markdown, get link previews, generate Open Graph share images, parse job postings and resumes, score a resume against a job, and compute Elo, Glicko-2 or OpenSkill ratings. One RapidAPI key works for all of them, and each API has a free plan.
 
@@ -17,6 +17,11 @@
 | `rate_matches` | Ratings from match results: OpenSkill, Glicko-2 or Elo; 1v1, teams, free-for-alls | [Skill Rating API](https://ranking-api.fly.dev/) |
 | `predict_match` | Win probability and match quality for a matchup | Skill Rating API |
 | `list_rating_algorithms` | Supported algorithms and their parameters | Skill Rating API |
+| `china_hot_lists_boards` | Available Chinese hot lists, update interval and status | [China Hot Lists API](https://hot-lists-api.fly.dev/) |
+| `china_hot_list` | One platform's real-time hot list (e.g. Weibo hot search) with English titles, category, heat | China Hot Lists API |
+| `china_hot_lists_all` | Several platforms' hot lists in one call: "what is trending in China right now" | China Hot Lists API |
+| `china_hot_lists_search` | Is a keyword (Chinese or English) on the hot lists right now, e.g. "is Tesla trending on Weibo" | China Hot Lists API |
+| `china_trending_across_platforms` | Topics trending on two or more Chinese platforms at once, with each platform's rank | China Hot Lists API |
 
 ## Setup
 
@@ -52,6 +57,8 @@ Requires Node.js 18 or newer.
 - "Parse this job ad and tell me the salary range per year and whether it's open to Europe."
 - "Score my resume at ~/cv.pdf against this job description and list the skills I'm missing."
 - "Here are our league results; rank the players with Glicko-2 and predict next week's final."
+- "What is trending in China right now? Give me the top stories on Weibo and Douyin in English."
+- "Is anything about Tesla on the Chinese hot lists today?"
 
 ## Free tools
 
@@ -69,11 +76,14 @@ The server runs on your machine and sends each request only to the API it uses, 
 **Which tool should an AI agent use to read a web page?**
 `fetch_url_as_markdown`. It strips navigation, ads and boilerplate, so the model gets the article text at a fraction of the tokens of raw HTML.
 
-**Do I need all five subscriptions?**
+**Do I need all six subscriptions?**
 No. Subscribe only to the APIs you use; tools for the others return a clear "not subscribed" error.
 
 **Can I use these without MCP?**
 Yes. Each API is a normal REST API on RapidAPI, and each also runs as a pay-per-result Actor on the [Apify Store](https://apify.com/keith-apis).
+
+**How do I see what is trending in China without reading Chinese?**
+`china_hot_lists_all` returns the Weibo, Douyin, Toutiao, Baidu, Kuaishou and Bilibili hot lists with English titles and a topic category; `china_trending_across_platforms` shows the stories that are big on several platforms at once.
 
 ## License
 

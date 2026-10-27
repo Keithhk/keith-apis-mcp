@@ -1,4 +1,4 @@
-// Runs the built server over stdio against a local mock of the five APIs.
+// Runs the built server over stdio against a local mock of the six APIs.
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
@@ -28,6 +28,10 @@ before(async () => {
         res.writeHead(200, { "content-type": "image/png" });
         return res.end(PNG);
       }
+      if (req.url.startsWith("/hot/v1/boards/kuaishou")) {
+        res.writeHead(503, { "content-type": "application/json" });
+        return res.end(JSON.stringify({ error: { code: "source_unavailable", message: "Kuaishou is not answering." } }));
+      }
       if (req.url.startsWith("/web/v1/preview") && req.url.includes("bad")) {
         res.writeHead(422, { "content-type": "application/json" });
         return res.end(JSON.stringify({ error: { code: "invalid_url", message: "That URL is not allowed." } }));
@@ -46,6 +50,7 @@ before(async () => {
     JOB_PARSER_BASE_URL: `${base}/job`,
     RESUME_MATCH_BASE_URL: `${base}/resume`,
     SKILL_RATING_BASE_URL: `${base}/rating`,
+    HOT_LISTS_BASE_URL: `${base}/hot`,
   });
 });
 
@@ -57,10 +62,11 @@ after(async () => {
 const last = () => seen[seen.length - 1];
 const json = (r) => JSON.parse(r.content[0].text);
 
-test("lists all eleven tools with input schemas", async () => {
+test("lists all sixteen tools with input schemas", async () => {
   const { tools } = await client.listTools();
   assert.deepEqual(tools.map((t) => t.name).sort(), [
-    "fetch_url_as_markdown", "generate_og_image", "get_link_preview", "html_to_markdown",
+    "china_hot_list", "china_hot_lists_all", "china_hot_lists_boards", "china_hot_lists_search",
+    "china_trending_across_platforms", "fetch_url_as_markdown", "generate_og_image", "get_link_preview", "html_to_markdown",
     "list_rating_algorithms", "match_resume_to_job", "parse_job_posting", "parse_job_postings_batch",
     "parse_resume", "predict_match", "rate_matches",
   ]);
@@ -130,6 +136,34 @@ test("ratings tools", async () => {
   assert.equal(last().url, "/rating/predict");
   await client.callTool({ name: "list_rating_algorithms", arguments: {} });
   assert.equal(last().method, "GET");
+});
+
+test("China hot lists tools", async () => {
+  await client.callTool({ name: "china_hot_lists_boards", arguments: {} });
+  assert.equal(last().method, "GET");
+  assert.equal(last().url, "/hot/v1/boards");
+  assert.equal(last().headers["x-rapidapi-host"], "hot-lists-api.p.rapidapi.com");
+
+  const one = await client.callTool({ name: "china_hot_list", arguments: { board: "weibo", limit: 10, translate: false } });
+  assert.equal(json(one).path, "/hot/v1/boards/weibo?limit=10&translate=false");
+
+  const bad = await client.callTool({ name: "china_hot_list", arguments: { board: "twitter" } });
+  assert.equal(bad.isError, true);
+
+  await client.callTool({ name: "china_hot_lists_all", arguments: { boards: ["weibo", "douyin"], limit: 5 } });
+  assert.equal(last().url, "/hot/v1/all?boards=weibo%2Cdouyin&limit=5");
+  await client.callTool({ name: "china_hot_lists_all", arguments: {} });
+  assert.equal(last().url, "/hot/v1/all");
+
+  await client.callTool({ name: "china_hot_lists_search", arguments: { q: "特斯拉", boards: ["weibo"] } });
+  assert.equal(last().url, `/hot/v1/search?q=${encodeURIComponent("特斯拉")}&boards=weibo`);
+
+  await client.callTool({ name: "china_trending_across_platforms", arguments: { min_boards: 3 } });
+  assert.equal(last().url, "/hot/v1/cross?min_boards=3");
+
+  const down = await client.callTool({ name: "china_hot_list", arguments: { board: "kuaishou" } });
+  assert.equal(down.isError, true);
+  assert.match(down.content[0].text, /HTTP 503: Kuaishou is not answering\./);
 });
 
 test("missing RAPIDAPI_KEY explains how to get one", async () => {

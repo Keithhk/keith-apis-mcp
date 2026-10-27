@@ -1,7 +1,7 @@
 {
   "name": "keith-apis-mcp",
-  "version": "0.1.1",
-  "description": "MCP server for five small APIs: web page to Markdown and link previews, Open Graph images, job posting parsing, resume parsing and job matching, and Elo / Glicko-2 / OpenSkill ratings.",
+  "version": "0.2.0",
+  "description": "MCP server for six small APIs: web page to Markdown and link previews, Open Graph images, job posting parsing, resume parsing and job matching, Elo / Glicko-2 / OpenSkill ratings, and China hot lists (Weibo, Douyin, Baidu trending in English).",
   "mcpName": "io.github.Keithhk/keith-apis-mcp",
   "repository": {
     "type": "git",
@@ -32,7 +32,15 @@
     "resume-parser",
     "elo",
     "glicko-2",
-    "openskill"
+    "openskill",
+    "china",
+    "trending",
+    "hot-search",
+    "weibo",
+    "douyin",
+    "toutiao",
+    "baidu",
+    "social-listening"
   ],
   "license": "MIT",
   "engines": {
